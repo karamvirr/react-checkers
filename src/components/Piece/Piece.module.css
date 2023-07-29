@@ -1,0 +1,45 @@
+.piece {
+  --size: 90;
+  position: relative;
+  width: calc(var(--size) * 1%);
+  height: calc(var(--size) * 1%);
+  background-color: red;
+  border-radius: 50%;
+  border: 1px solid antiquewhite;
+}
+
+.piece::before {
+  content: '';
+  position: absolute;
+  height: 75%;
+  width: 75%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 1px solid antiquewhite;
+}
+
+.piece--player {
+
+}
+
+.piece--opponent {
+  background-color: black;
+}
+
+.piece--king::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  height: 50%;
+  width: 50%;
+  background-image: url('../../assets/crown.svg');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+

@@ -1,0 +1,44 @@
+.board {
+  border: 1px solid gray;
+}
+
+.board__row {
+  display: flex;
+  flex-direction: row;
+}
+
+.board__square {
+  background-color: white;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.board__square--alternating {
+  background-color: gray;
+}
+
+.board__square--highlighted::after {
+  content: '';
+  /* position: absolute;
+  border: 2px solid white;
+  height: 75%;
+  width: 75%;
+  border-radius: 50%;
+  opacity: 0.5; */
+  position: absolute;
+  background-color: cyan;
+  height: 100%;
+  width: 100%;
+  opacity: 0.5;
+  /* animation: highlighted-square 2.5s infinite ease-in-out; */
+}
+
+@keyframes highlighted-square {
+  50% {
+    background-color: aquamarine;
+  }
+}
