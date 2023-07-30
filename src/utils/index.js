@@ -1,6 +1,44 @@
+const isObjectEmpty = (value) => {
+  return Object.keys(value).length === 0
+    && value.constructor === Object;
+};
+
+const getPlayerPiecesCount = board => {
+  let count = 0;
+  board.forEach(row => {
+    row.forEach(cell => {
+      if (cell && cell.isPlayer) {
+        count++;
+      }
+    });
+  });
+  return count;
+};
+
+const getOpponentPiecesCount = board => {
+  let count = 0;
+  board.forEach(row => {
+    row.forEach(cell => {
+      if (cell && !cell.isPlayer) {
+        count++;
+      }
+    });
+  });
+  return count;
+};
+
+
+const isGameOver = board => {
+  return getPlayerPiecesCount(board) === 0 || getOpponentPiecesCount(board) === 0;
+};
+
 const getMoves = (board, row, column) => {
-  const { isPlayer, isKing } = board[row][column];
   const moves = [];
+  if (!board[row][column]) {
+    return moves;
+  }
+
+  const { isPlayer, isKing } = board[row][column];
 
   if (board[row - 1] && (isPlayer || isKing)) {
     const topLeftSquare = board[row - 1][column - 1];
@@ -14,7 +52,7 @@ const getMoves = (board, row, column) => {
         // jump opportunity
         moves.push({
           row: row - 2, column: column - 2,
-          jumpedOver: { row: row - 1, column: column - 1 }
+          capturedPiece: { row: row - 1, column: column - 1 }
         });
       }
     }
@@ -27,7 +65,7 @@ const getMoves = (board, row, column) => {
         // jump opportunity
         moves.push({
           row: row - 2, column: column + 2,
-          jumpedOver: { row: row - 1, column: column + 1 }
+          capturedPiece: { row: row - 1, column: column + 1 }
         });
       }
     }
@@ -45,7 +83,7 @@ const getMoves = (board, row, column) => {
         // jump opportunity
         moves.push({
           row: row + 2, column: column - 2,
-          jumpedOver: { row: row + 1, column: column - 1 }
+          capturedPiece: { row: row + 1, column: column - 1 }
         });
       }
     }
@@ -58,7 +96,7 @@ const getMoves = (board, row, column) => {
         /// jump opportunity
         moves.push({
           row: row + 2, column: column + 2 ,
-          jumpedOver: { row: row + 1, column: column + 1 }
+          capturedPiece: { row: row + 1, column: column + 1 }
         });
       }
     }
@@ -67,4 +105,4 @@ const getMoves = (board, row, column) => {
   return moves;
 };
 
-export { getMoves };
+export { getMoves, getPlayerPiecesCount, getOpponentPiecesCount, isObjectEmpty };

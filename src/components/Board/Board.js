@@ -1,17 +1,15 @@
 import classes from './Board.module.css';
 import Piece from '../Piece';
 import { useState } from 'react';
-import { getMoves } from '../../utils';
-import Square from '../Square/Square';
+import { getMoves, isObjectEmpty } from '../../utils';
 
 const Board = (props) => {
-  const [move, setMove] = useState({});
+  const [currentMove, setCurrentMove] = useState({});
   const [highlightedSquares, setHighlightedSquares] = useState([]);
 
   const pieceSelectionHandler = (row, column) => {
-    if (props.isPlayersTurn) {
-      setMove({ from: { row: row, column: column } });
-      console.log(getMoves(props.board, row, column));
+    if (props.isPlayersTurn && !currentMove.isMandatory) {
+      setCurrentMove({ from: { row: row, column: column } });
       setHighlightedSquares(getMoves(props.board, row, column));
     }
   };
@@ -22,25 +20,23 @@ const Board = (props) => {
     })
   };
 
-  const movePieceHandler = (row, column) => {
+  const selectMoveHandler = (row, column) => {
     const destinationSquare = highlightedSquares.find((square) => {
       return square.row === row && square.column === column;
     })
     if (destinationSquare) {
-      // TODO: handle case where user can make consecutive jumps on one turn.
       props.updateBoard({
-        ...move,
+        ...currentMove,
         to: { row: row, column: column },
-        jumpedOver: destinationSquare.jumpedOver
+        capturedPiece: destinationSquare.capturedPiece
       });
-      setMove({});
+      setCurrentMove({});
       setHighlightedSquares([]);
     }
   };
 
   const data = props.board.map((row, rowIndex) => {
     const rowKey = `row${rowIndex}`;
-    // let alternatingIndex = (rowIndex % 2 === 0) ? 1 : 0;
     const alternatingPatternFlag = (rowIndex % 2 === 0) ? 1 : 0;
     return (
       <div className={classes['board__row']} key={rowKey}>
@@ -55,9 +51,13 @@ const Board = (props) => {
           if (isHighlightedSquare(rowIndex, columnIndex)) {
             classList += ` ${classes['board__square--highlighted']}`;
           }
+          if (isObjectEmpty(currentMove) && !isObjectEmpty(props.mandatoryJump)) {
+            setCurrentMove(props.mandatoryJump);
+            setHighlightedSquares(getMoves(props.board, props.mandatoryJump.from.row, props.mandatoryJump.from.column));
+          }
           const cell = props.board[rowIndex][columnIndex];
           return (
-            <div onClick={() => { movePieceHandler(rowIndex, columnIndex) }} className={classList} key={columnKey}>
+            <div onClick={() => { selectMoveHandler(rowIndex, columnIndex) }} className={classList} key={columnKey}>
               {cell ? <Piece row={rowIndex} column={columnIndex} isPlayer={cell.isPlayer} isKing={cell.isKing} pieceSelectionHandler={pieceSelectionHandler} /> : null}
             </div>
           );
@@ -73,4 +73,4 @@ const Board = (props) => {
   );
 };
 
-export default Board; 
+export default Board;

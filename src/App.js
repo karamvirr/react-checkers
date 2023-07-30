@@ -1,6 +1,6 @@
 import Board from './components/Board';
 import { useState, useEffect } from 'react';
-import { applyBestMove } from './utils/bot';
+import { getPlayerPiecesCount, getOpponentPiecesCount, getMoves } from './utils';
 
 const initializeBoard = () => {
   const board = [];
@@ -33,32 +33,52 @@ const initializeBoard = () => {
 const App = () => {
   const [board, setBoard] = useState(initializeBoard());
   const [isPlayersTurn, setIsPlayersTurn] = useState(true);
+  const [mandatoryJump, setMandatoryJump] = useState({});
 
   useEffect(() => {
-    if (!isPlayersTurn) {
-      // AI's turn
-      const boardCopy = [...board];
-      //getBestMove(boardCopy);
+    const playerPieceCount = getPlayerPiecesCount(board);
+    const opponentPieceCount = getOpponentPiecesCount(board);
+    console.log(playerPieceCount, opponentPieceCount);
+    if (playerPieceCount === 0 || opponentPieceCount === 0) {
+      if (playerPieceCount === 0) {
+        alert('Game over, you lost!');
+      } else {
+        alert('Game over, you won!');
+      }
+      setBoard(initializeBoard());
+      setIsPlayersTurn(true);
+    } else {
+      if (!isPlayersTurn) {
+        // AI's turn
+        const boardCopy = [...board];
+        //getBestMove(boardCopy);
+      }
+      //setIsPlayersTurn(previousState => !previousState);
     }
-  }, [isPlayersTurn]);
+  }, [board]);
 
-  const boardUpdateHandler = ({ from, to, jumpedOver }) => {
-    console.log(from, to, jumpedOver);
-    if (jumpedOver) {
-      board[jumpedOver.row][jumpedOver.column] = null;
-    }
+  const boardUpdateHandler = ({ from, to, capturedPiece }) => {
     board[to.row][to.column] = board[from.row][from.column];
     board[from.row][from.column] = null;
+
     if (to.row === 0 || to.row === (board.length - 1)) {
       board[to.row][to.column].isKing = true;
     }
-    setBoard(board);
-    //setIsPlayersTurn(previousState => !previousState);
+    if (capturedPiece) {
+      board[capturedPiece.row][capturedPiece.column] = null;
+      if (getMoves(board, to.row, to.column).some(m => m.capturedPiece)) {
+        setMandatoryJump({ isMandatory: true, from: { row: to.row, column: to.column } });
+      } else {
+        setMandatoryJump({});
+      }
+    }
+
+    setBoard([...board]);
   };
 
   return (
     <main>
-      <Board board={board} isPlayersTurn={isPlayersTurn} updateBoard={boardUpdateHandler}/>
+      <Board board={board} isPlayersTurn={isPlayersTurn} updateBoard={boardUpdateHandler} mandatoryJump={mandatoryJump} />
     </main>
   );
 };
