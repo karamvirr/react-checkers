@@ -13,7 +13,7 @@ const Piece = (props) => {
   }
 
   return (
-    <div onClick={() => { props.onClick(props.row, props.column, props.isPlayer) }} className={classList}></div>
+    <div onClick={() => { props.pieceSelectionHandler(props.row, props.column) }} className={classList}></div>
   );
 }; 
 

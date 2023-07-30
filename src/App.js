@@ -6,25 +6,20 @@ const initializeBoard = () => {
   const board = [];
   for (let i = 0; i < 8; i++) {
     const row = [];
-    let alternatingIndex = (i % 2 === 0) ? 1 : 0;
+    const alternatingPatternFlag = (i % 2 === 0) ? 1 : 0;
     for (let j = 0; j < 8; j++) {
       let cell = null;
-      if (alternatingIndex == j) {
-        alternatingIndex += 2;
+      if (j % 2 === alternatingPatternFlag) {
         if (i < 3) {
           cell = {
             isPlayer: false,
-            isKing: false,
-            row: i,
-            column: j,
+            isKing: false
           };
         }
         if (i > 4) {
           cell = {
             isPlayer: true,
-            isKing: false,
-            row: i,
-            column: j
+            isKing: false
           };
         }
       }
@@ -37,17 +32,33 @@ const initializeBoard = () => {
 
 const App = () => {
   const [board, setBoard] = useState(initializeBoard());
-  const [playersTurn, setPlayersTurn] = useState(true);
-  const [gameOver, setGameOver] = useState(false);
+  const [isPlayersTurn, setIsPlayersTurn] = useState(true);
 
-  console.log('board', board);
+  useEffect(() => {
+    if (!isPlayersTurn) {
+      // AI's turn
+      const boardCopy = [...board];
+      //getBestMove(boardCopy);
+    }
+  }, [isPlayersTurn]);
 
-  const toggleTurn = () => {
-    setPlayersTurn(previousState => !previousState);
-  }
+  const boardUpdateHandler = ({ from, to, jumpedOver }) => {
+    console.log(from, to, jumpedOver);
+    if (jumpedOver) {
+      board[jumpedOver.row][jumpedOver.column] = null;
+    }
+    board[to.row][to.column] = board[from.row][from.column];
+    board[from.row][from.column] = null;
+    if (to.row === 0 || to.row === (board.length - 1)) {
+      board[to.row][to.column].isKing = true;
+    }
+    setBoard(board);
+    //setIsPlayersTurn(previousState => !previousState);
+  };
+
   return (
     <main>
-      <Board board={board} isPlayerTurn={playersTurn} toggleTurn={toggleTurn} />
+      <Board board={board} isPlayersTurn={isPlayersTurn} updateBoard={boardUpdateHandler}/>
     </main>
   );
 };
