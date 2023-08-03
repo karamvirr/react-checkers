@@ -1,14 +1,28 @@
 import classes from './Board.module.css';
 import Piece from '../Piece';
-import { useState } from 'react';
-import { getMoves, isObjectEmpty } from '../../utils';
+import { useState, useEffect} from 'react';
+import { getMoves, isObjectEmpty, isGameOver } from '../../utils';
 
 const Board = (props) => {
   const [currentMove, setCurrentMove] = useState({});
   const [highlightedSquares, setHighlightedSquares] = useState([]);
 
+
+  useEffect(() => {
+    if (isObjectEmpty(currentMove) && !isObjectEmpty(props.mandatoryJump) && props.isPlayersTurn) {
+      setCurrentMove(props.mandatoryJump);
+      const highlightedMandatoryMoves = getMoves(
+        props.board, props.mandatoryJump.from.row, props.mandatoryJump.from.column
+      ).filter(move => move.capturedPiece);
+      setHighlightedSquares(highlightedMandatoryMoves);
+    }
+  }, [props.mandatoryJump]);
+
   const pieceSelectionHandler = (row, column) => {
-    if (props.isPlayersTurn && !currentMove.isMandatory) {
+    if (isGameOver(props.board)) {
+      return;
+    }
+    if (props.isPlayersTurn && !currentMove.isMandatory && props.board[row][column].isPlayer) {
       setCurrentMove({ from: { row: row, column: column } });
       setHighlightedSquares(getMoves(props.board, row, column));
     }
@@ -25,13 +39,13 @@ const Board = (props) => {
       return square.row === row && square.column === column;
     })
     if (destinationSquare) {
+      setCurrentMove({});
+      setHighlightedSquares([]);
       props.updateBoard({
         ...currentMove,
         to: { row: row, column: column },
         capturedPiece: destinationSquare.capturedPiece
       });
-      setCurrentMove({});
-      setHighlightedSquares([]);
     }
   };
 
@@ -50,10 +64,6 @@ const Board = (props) => {
 
           if (isHighlightedSquare(rowIndex, columnIndex)) {
             classList += ` ${classes['board__square--highlighted']}`;
-          }
-          if (isObjectEmpty(currentMove) && !isObjectEmpty(props.mandatoryJump)) {
-            setCurrentMove(props.mandatoryJump);
-            setHighlightedSquares(getMoves(props.board, props.mandatoryJump.from.row, props.mandatoryJump.from.column));
           }
           const cell = props.board[rowIndex][columnIndex];
           return (

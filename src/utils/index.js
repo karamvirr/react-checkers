@@ -105,4 +105,24 @@ const getMoves = (board, row, column) => {
   return moves;
 };
 
-export { getMoves, getPlayerPiecesCount, getOpponentPiecesCount, isObjectEmpty };
+const applyBestMove = (board, isPlayersTurn) => {
+  const updatedBoard = [...board];
+  let bestMoves = [];
+  let bestScore = -Infinity;
+  for (let row = 0; row < updatedBoard.length; row++) {
+    for (let column = 0; column < updatedBoard[row].length; column++) {
+      const square = updatedBoard[row][column];
+      if (square && (square.isPlayer === isPlayersTurn)) {
+        const moves = getMoves(updatedBoard, row, column);
+        moves.forEach((move) => {
+          bestMoves.push({ from: { row: row, column: column }, to: { ...move }, capturedPiece: move.capturedPiece });
+        });
+      }
+    }
+  }
+
+  const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
+  return bestMove;
+};
+
+export { getMoves, getPlayerPiecesCount, getOpponentPiecesCount, isObjectEmpty, applyBestMove, isGameOver };

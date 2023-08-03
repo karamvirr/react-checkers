@@ -1,6 +1,7 @@
 import Board from './components/Board';
+import Bot from './components/Bot';
 import { useState, useEffect } from 'react';
-import { getPlayerPiecesCount, getOpponentPiecesCount, getMoves } from './utils';
+import { getPlayerPiecesCount, getOpponentPiecesCount, getMoves, isObjectEmpty } from './utils';
 
 const initializeBoard = () => {
   const board = [];
@@ -27,40 +28,43 @@ const initializeBoard = () => {
     }
     board.push(row);
   }
+
   return board;
 };
 
 const App = () => {
   const [board, setBoard] = useState(initializeBoard());
-  const [isPlayersTurn, setIsPlayersTurn] = useState(true);
+  const [isPlayersTurn, setIsPlayersTurn] = useState(false);
   const [mandatoryJump, setMandatoryJump] = useState({});
+  const [isGameOver, setIsGameOver] = useState(false);
+
+  console.log('App.js');
 
   useEffect(() => {
-    const playerPieceCount = getPlayerPiecesCount(board);
-    const opponentPieceCount = getOpponentPiecesCount(board);
-    console.log(playerPieceCount, opponentPieceCount);
-    if (playerPieceCount === 0 || opponentPieceCount === 0) {
+    if (isGameOver) {
+      const playerPieceCount = getPlayerPiecesCount(board);
+      const opponentPieceCount = getOpponentPiecesCount(board);
       if (playerPieceCount === 0) {
         alert('Game over, you lost!');
-      } else {
+      } else if (opponentPieceCount == 0) {
         alert('Game over, you won!');
+      } else {
+        alert('Game over, it\'s a draw!');
       }
-      setBoard(initializeBoard());
-      setIsPlayersTurn(true);
-    } else {
-      if (!isPlayersTurn) {
-        // AI's turn
-        const boardCopy = [...board];
-        //getBestMove(boardCopy);
-      }
-      //setIsPlayersTurn(previousState => !previousState);
+      const timer = setTimeout(() => {
+        setBoard(initializeBoard());
+        setIsPlayersTurn(true);
+        setIsGameOver(false);
+        clearInterval(timer);
+      }, 500);
     }
-  }, [board]);
+  }, [isGameOver]);
 
   const boardUpdateHandler = ({ from, to, capturedPiece }) => {
     board[to.row][to.column] = board[from.row][from.column];
     board[from.row][from.column] = null;
 
+    let additionalJump = false;
     if (to.row === 0 || to.row === (board.length - 1)) {
       board[to.row][to.column].isKing = true;
     }
@@ -68,17 +72,32 @@ const App = () => {
       board[capturedPiece.row][capturedPiece.column] = null;
       if (getMoves(board, to.row, to.column).some(m => m.capturedPiece)) {
         setMandatoryJump({ isMandatory: true, from: { row: to.row, column: to.column } });
+        additionalJump = true;
       } else {
         setMandatoryJump({});
       }
     }
-
     setBoard([...board]);
+    if (getOpponentPiecesCount(board) === 0 || getPlayerPiecesCount(board) === 0) {
+      setIsGameOver(true);
+    } else if (!additionalJump) {
+      setIsPlayersTurn(previousState => !previousState);
+    }
   };
 
   return (
     <main>
-      <Board board={board} isPlayersTurn={isPlayersTurn} updateBoard={boardUpdateHandler} mandatoryJump={mandatoryJump} />
+      <Bot
+        board={board}
+        isPlayer={false}
+        isGameOver={isGameOver}
+        isPlayersTurn={isPlayersTurn}
+        updateBoard={boardUpdateHandler} />
+      <Board
+        board={board}
+        isPlayersTurn={isPlayersTurn}
+        updateBoard={boardUpdateHandler}
+        mandatoryJump={mandatoryJump} />
     </main>
   );
 };

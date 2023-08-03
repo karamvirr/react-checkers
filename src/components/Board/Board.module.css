@@ -1,5 +1,5 @@
 .board {
-  border: 1px solid gray;
+  border: 1px solid silver;
 }
 
 .board__row {
@@ -18,7 +18,7 @@
 }
 
 .board__square--alternating {
-  background-color: gray;
+  background-color: silver;
 }
 
 .board__square--highlighted::after {
