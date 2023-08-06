@@ -6,7 +6,7 @@ import {
   euclideanDistance
 } from './index.js';
 
-const MAX_SEARCH_DEPTH = 5;
+const MAX_SEARCH_DEPTH = 4;
 const MAX_REWARD = 1000000;
 const CAPTURE_BONUS = 50000;
 const KING_REWARD = 1000;
