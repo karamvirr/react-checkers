@@ -1,7 +1,7 @@
 import Board from './components/Board';
 import Bot from './components/Bot';
 import { useState, useEffect } from 'react';
-import { getPlayerPiecesCount, getOpponentPiecesCount, getMoves, isObjectEmpty } from './utils';
+import { getPlayerPiecesCount, getOpponentPiecesCount, jumpOpportunityExists } from './utils';
 
 const initializeBoard = () => {
   const board = [];
@@ -35,10 +35,20 @@ const initializeBoard = () => {
 const App = () => {
   const [board, setBoard] = useState(initializeBoard());
   const [isPlayersTurn, setIsPlayersTurn] = useState(false);
-  const [mandatoryJump, setMandatoryJump] = useState({});
   const [isGameOver, setIsGameOver] = useState(false);
+  const [additionalJumpDetected, setAdditionalJumpDetected] = useState(false);
+  const [endTurnRequested, setEndTurnRequested] = useState(false);
 
-  console.log('App.js');
+  useEffect(() => {
+    if (endTurnRequested) {
+      if (getOpponentPiecesCount(board) === 0 || getPlayerPiecesCount(board) === 0) {
+        setIsGameOver(true);
+      } else if (!additionalJumpDetected) {
+        setIsPlayersTurn(previousState => !previousState);
+      }
+      setEndTurnRequested(false);
+    }
+  }, [endTurnRequested]);
 
   useEffect(() => {
     if (isGameOver) {
@@ -51,12 +61,7 @@ const App = () => {
       } else {
         alert('Game over, it\'s a draw!');
       }
-      const timer = setTimeout(() => {
-        setBoard(initializeBoard());
-        setIsPlayersTurn(true);
-        setIsGameOver(false);
-        clearInterval(timer);
-      }, 500);
+      window.location.reload();
     }
   }, [isGameOver]);
 
@@ -64,25 +69,20 @@ const App = () => {
     board[to.row][to.column] = board[from.row][from.column];
     board[from.row][from.column] = null;
 
-    let additionalJump = false;
+    if (additionalJumpDetected) {
+      setAdditionalJumpDetected(false);
+    }
     if (to.row === 0 || to.row === (board.length - 1)) {
       board[to.row][to.column].isKing = true;
     }
     if (capturedPiece) {
       board[capturedPiece.row][capturedPiece.column] = null;
-      if (getMoves(board, to.row, to.column).some(m => m.capturedPiece)) {
-        setMandatoryJump({ isMandatory: true, from: { row: to.row, column: to.column } });
-        additionalJump = true;
-      } else {
-        setMandatoryJump({});
+      if (jumpOpportunityExists(board, to.row, to.column)) {
+        setAdditionalJumpDetected(true);
       }
     }
     setBoard([...board]);
-    if (getOpponentPiecesCount(board) === 0 || getPlayerPiecesCount(board) === 0) {
-      setIsGameOver(true);
-    } else if (!additionalJump) {
-      setIsPlayersTurn(previousState => !previousState);
-    }
+    setEndTurnRequested(true);
   };
 
   return (
@@ -90,14 +90,12 @@ const App = () => {
       <Bot
         board={board}
         isPlayer={false}
-        isGameOver={isGameOver}
         isPlayersTurn={isPlayersTurn}
         updateBoard={boardUpdateHandler} />
       <Board
         board={board}
         isPlayersTurn={isPlayersTurn}
-        updateBoard={boardUpdateHandler}
-        mandatoryJump={mandatoryJump} />
+        updateBoard={boardUpdateHandler} />
     </main>
   );
 };

@@ -1,5 +1,5 @@
 .board {
-  border: 1px solid silver;
+  border: 1px solid lightgray;
 }
 
 .board__row {
@@ -18,7 +18,7 @@
 }
 
 .board__square--alternating {
-  background-color: silver;
+  background-color: lightgray;
 }
 
 .board__square--highlighted::after {
@@ -30,15 +30,15 @@
   border-radius: 50%;
   opacity: 0.5; */
   position: absolute;
-  background-color: cyan;
   height: 100%;
   width: 100%;
   opacity: 0.5;
-  /* animation: highlighted-square 2.5s infinite ease-in-out; */
+  background-color: cadetblue;
+  /* animation: highlighted-square 1s infinite ease-in-out; */
 }
 
 @keyframes highlighted-square {
   50% {
-    background-color: aquamarine;
+    background-color: pink;
   }
 }

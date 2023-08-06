@@ -27,16 +27,12 @@ const getOpponentPiecesCount = board => {
   return count;
 };
 
-
 const isGameOver = board => {
   return getPlayerPiecesCount(board) === 0 || getOpponentPiecesCount(board) === 0;
 };
 
 const getMoves = (board, row, column) => {
   const moves = [];
-  if (!board[row][column]) {
-    return moves;
-  }
 
   const { isPlayer, isKing } = board[row][column];
 
@@ -105,24 +101,20 @@ const getMoves = (board, row, column) => {
   return moves;
 };
 
-const applyBestMove = (board, isPlayersTurn) => {
-  const updatedBoard = [...board];
-  let bestMoves = [];
-  let bestScore = -Infinity;
-  for (let row = 0; row < updatedBoard.length; row++) {
-    for (let column = 0; column < updatedBoard[row].length; column++) {
-      const square = updatedBoard[row][column];
-      if (square && (square.isPlayer === isPlayersTurn)) {
-        const moves = getMoves(updatedBoard, row, column);
-        moves.forEach((move) => {
-          bestMoves.push({ from: { row: row, column: column }, to: { ...move }, capturedPiece: move.capturedPiece });
-        });
-      }
-    }
-  }
+const euclideanDistance = (x1, y1, x2, y2) => {
+  return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+}
 
-  const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
-  return bestMove;
+const jumpOpportunityExists = (board, row, column) => {
+  return getMoves(board, row, column).some(move => move.capturedPiece);
 };
 
-export { getMoves, getPlayerPiecesCount, getOpponentPiecesCount, isObjectEmpty, applyBestMove, isGameOver };
+export {
+  getMoves,
+  getPlayerPiecesCount,
+  getOpponentPiecesCount,
+  isObjectEmpty,
+  isGameOver,
+  euclideanDistance,
+  jumpOpportunityExists
+};

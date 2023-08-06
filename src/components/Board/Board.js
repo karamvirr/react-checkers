@@ -1,22 +1,11 @@
 import classes from './Board.module.css';
 import Piece from '../Piece';
-import { useState, useEffect} from 'react';
-import { getMoves, isObjectEmpty, isGameOver } from '../../utils';
+import { useState } from 'react';
+import { getMoves, isGameOver } from '../../utils';
 
 const Board = (props) => {
   const [currentMove, setCurrentMove] = useState({});
   const [highlightedSquares, setHighlightedSquares] = useState([]);
-
-
-  useEffect(() => {
-    if (isObjectEmpty(currentMove) && !isObjectEmpty(props.mandatoryJump) && props.isPlayersTurn) {
-      setCurrentMove(props.mandatoryJump);
-      const highlightedMandatoryMoves = getMoves(
-        props.board, props.mandatoryJump.from.row, props.mandatoryJump.from.column
-      ).filter(move => move.capturedPiece);
-      setHighlightedSquares(highlightedMandatoryMoves);
-    }
-  }, [props.mandatoryJump]);
 
   const pieceSelectionHandler = (row, column) => {
     if (isGameOver(props.board)) {
@@ -37,15 +26,30 @@ const Board = (props) => {
   const selectMoveHandler = (row, column) => {
     const destinationSquare = highlightedSquares.find((square) => {
       return square.row === row && square.column === column;
-    })
-    if (destinationSquare) {
-      setCurrentMove({});
-      setHighlightedSquares([]);
+    });
+
+    if (currentMove.from && destinationSquare) {
       props.updateBoard({
         ...currentMove,
         to: { row: row, column: column },
         capturedPiece: destinationSquare.capturedPiece
       });
+
+      if (destinationSquare.capturedPiece) {
+        const additionalJumpOpportunities = getMoves(
+          props.board, destinationSquare.row, destinationSquare.column
+        ).filter(move => move.capturedPiece);
+        if (additionalJumpOpportunities.length > 0) {
+          setCurrentMove({
+            from: { row: destinationSquare.row, column: destinationSquare.column },
+            isMandatory: true
+          });
+          setHighlightedSquares(additionalJumpOpportunities);
+          return;
+        }
+      }
+      setCurrentMove({});
+      setHighlightedSquares([]);
     }
   };
 
