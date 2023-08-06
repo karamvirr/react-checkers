@@ -1,5 +1,6 @@
 import classes from './Board.module.css';
 import Piece from '../Piece';
+import Square from '../Square';
 import { useState } from 'react';
 import { getMoves, isGameOver } from '../../utils';
 
@@ -59,21 +60,17 @@ const Board = (props) => {
     return (
       <div className={classes['board__row']} key={rowKey}>
         {row.map((_, columnIndex) => {
-          const columnKey = `row${rowIndex}col${columnIndex}`;
-          let classList = classes['board__square'];
-
-          if (columnIndex % 2 === alternatingPatternFlag) {
-            classList += ` ${classes['board__square--alternating']}`;
-          }
-
-          if (isHighlightedSquare(rowIndex, columnIndex)) {
-            classList += ` ${classes['board__square--highlighted']}`;
-          }
+          const squareKey = `row${rowIndex}col${columnIndex}`;
           const cell = props.board[rowIndex][columnIndex];
+
           return (
-            <div onClick={() => { selectMoveHandler(rowIndex, columnIndex) }} className={classList} key={columnKey}>
+            <Square
+              onClick={() => { selectMoveHandler(rowIndex, columnIndex) }}
+              alternatePattern={columnIndex % 2 === alternatingPatternFlag}
+              isHighlighted={isHighlightedSquare(rowIndex, columnIndex)}
+              key={squareKey}>
               {cell ? <Piece row={rowIndex} column={columnIndex} isPlayer={cell.isPlayer} isKing={cell.isKing} pieceSelectionHandler={pieceSelectionHandler} /> : null}
-            </div>
+            </Square>
           );
         })}
       </div>
