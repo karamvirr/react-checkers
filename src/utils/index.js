@@ -1,6 +1,5 @@
-const isObjectEmpty = (value) => {
-  return Object.keys(value).length === 0
-    && value.constructor === Object;
+const isObjectEmpty = value => {
+  return Object.keys(value).length === 0 && value.constructor === Object;
 };
 
 const getPlayerPiecesCount = board => {
@@ -28,7 +27,9 @@ const getOpponentPiecesCount = board => {
 };
 
 const isGameOver = board => {
-  return getPlayerPiecesCount(board) === 0 || getOpponentPiecesCount(board) === 0;
+  return (
+    getPlayerPiecesCount(board) === 0 || getOpponentPiecesCount(board) === 0
+  );
 };
 
 const getMoves = (board, row, column) => {
@@ -41,26 +42,28 @@ const getMoves = (board, row, column) => {
     const topRightSquare = board[row - 1][column + 1];
 
     if (topLeftSquare === null) {
-      moves.push({ row: row - 1, column: column - 1});
+      moves.push({ row: row - 1, column: column - 1 });
     } else if (topLeftSquare && topLeftSquare.isPlayer != isPlayer) {
       // top left square is taken by opponent
       if (board[row - 2] && board[row - 2][column - 2] === null) {
         // jump opportunity
         moves.push({
-          row: row - 2, column: column - 2,
+          row: row - 2,
+          column: column - 2,
           capturedPiece: { row: row - 1, column: column - 1 }
         });
       }
     }
 
     if (topRightSquare === null) {
-      moves.push({ row: row - 1, column: column + 1});
+      moves.push({ row: row - 1, column: column + 1 });
     } else if (topRightSquare && topRightSquare.isPlayer != isPlayer) {
       // top right square is taken by opponent
       if (board[row - 2] && board[row - 2][column + 2] === null) {
         // jump opportunity
         moves.push({
-          row: row - 2, column: column + 2,
+          row: row - 2,
+          column: column + 2,
           capturedPiece: { row: row - 1, column: column + 1 }
         });
       }
@@ -78,7 +81,8 @@ const getMoves = (board, row, column) => {
       if (board[row + 2] && board[row + 2][column - 2] === null) {
         // jump opportunity
         moves.push({
-          row: row + 2, column: column - 2,
+          row: row + 2,
+          column: column - 2,
           capturedPiece: { row: row + 1, column: column - 1 }
         });
       }
@@ -91,7 +95,8 @@ const getMoves = (board, row, column) => {
       if (board[row + 2] && board[row + 2][column + 2] === null) {
         /// jump opportunity
         moves.push({
-          row: row + 2, column: column + 2 ,
+          row: row + 2,
+          column: column + 2,
           capturedPiece: { row: row + 1, column: column + 1 }
         });
       }
@@ -103,7 +108,7 @@ const getMoves = (board, row, column) => {
 
 const euclideanDistance = (x1, y1, x2, y2) => {
   return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-}
+};
 
 const jumpOpportunityExists = (board, row, column) => {
   return getMoves(board, row, column).some(move => move.capturedPiece);

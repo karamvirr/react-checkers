@@ -13,8 +13,12 @@ const Piece = (props) => {
   }
 
   return (
-    <div onClick={() => { props.pieceSelectionHandler(props.row, props.column) }} className={classList}></div>
+    <div
+      onClick={() => {
+        props.pieceSelectionHandler(props.row, props.column);
+      }}
+      className={classList}></div>
   );
-}; 
+};
 
-export default Piece; 
+export default Piece;

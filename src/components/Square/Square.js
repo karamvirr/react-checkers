@@ -1,5 +1,4 @@
 import classes from './Square.module.css';
-import { useState } from 'react';
 
 const Square = (props) => {
   let classList = classes['board__square'];
@@ -11,7 +10,9 @@ const Square = (props) => {
   }
 
   return (
-    <div onClick={props.onClick} className={classList}>
+    <div
+      onClick={props.onClick}
+      className={classList}>
       {props.children}
     </div>
   );

@@ -1,1 +1,1 @@
-export { default } from './Bot'; 
+export { default } from './Bot';

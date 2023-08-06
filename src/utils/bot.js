@@ -24,22 +24,46 @@ const calculateBestMove = (board, mandatoryJumpFrom = {}) => {
           const piece = updatedBoard[row][column];
           const moves = getMoves(updatedBoard, row, column);
           moves.forEach((move) => {
-            const capturedPiece = move.capturedPiece ? updatedBoard[move.capturedPiece.row][move.capturedPiece.column] : null;
+            const capturedPiece = move.capturedPiece
+              ? updatedBoard[move.capturedPiece.row][move.capturedPiece.column]
+              : null;
             // choose
-            applyMove(updatedBoard, { row: row, column: column }, move, piece, capturedPiece);
+            applyMove(
+              updatedBoard,
+              { row: row, column: column },
+              move,
+              piece,
+              capturedPiece
+            );
             // explore
             let score = minimax(updatedBoard, 0, false);
             if (capturedPiece) {
               score += CAPTURE_BONUS;
             }
             // unchoose
-            undoMove(updatedBoard, { row: row, column: column }, move, piece, capturedPiece);
+            undoMove(
+              updatedBoard,
+              { row: row, column: column },
+              move,
+              piece,
+              capturedPiece
+            );
 
             if (score > bestScore) {
               bestScore = score;
-              bestMoves = [{ from: { row: row, column: column }, to: { ...move }, capturedPiece: move.capturedPiece }];
+              bestMoves = [
+                {
+                  from: { row: row, column: column },
+                  to: { ...move },
+                  capturedPiece: move.capturedPiece
+                }
+              ];
             } else if (score === bestScore) {
-              bestMoves.push({ from: { row: row, column: column }, to: { ...move }, capturedPiece: move.capturedPiece });
+              bestMoves.push({
+                from: { row: row, column: column },
+                to: { ...move },
+                capturedPiece: move.capturedPiece
+              });
             }
           });
         }
@@ -51,31 +75,53 @@ const calculateBestMove = (board, mandatoryJumpFrom = {}) => {
     const piece = updatedBoard[row][column];
     const moves = getMoves(updatedBoard, row, column);
     moves.forEach((move) => {
-      const capturedPiece = move.capturedPiece ? board[move.capturedPiece.row][move.capturedPiece.column] : null;
+      const capturedPiece = move.capturedPiece
+        ? board[move.capturedPiece.row][move.capturedPiece.column]
+        : null;
       // choose
-      applyMove(updatedBoard, { row: row, column: column }, move, piece, capturedPiece);
+      applyMove(
+        updatedBoard,
+        { row: row, column: column },
+        move,
+        piece,
+        capturedPiece
+      );
       // explore
       let score = minimax(updatedBoard, 0, false);
       if (capturedPiece) {
         score += CAPTURE_BONUS;
       }
       // unchoose
-      undoMove(updatedBoard, { row: row, column: column }, move, piece, capturedPiece);
+      undoMove(
+        updatedBoard,
+        { row: row, column: column },
+        move,
+        piece,
+        capturedPiece
+      );
 
       if (score > bestScore) {
         bestScore = score;
-        bestMoves = [{ from: { row: row, column: column }, to: { ...move }, capturedPiece: move.capturedPiece }];
+        bestMoves = [
+          {
+            from: { row: row, column: column },
+            to: { ...move },
+            capturedPiece: move.capturedPiece
+          }
+        ];
       } else if (score === bestScore) {
-        bestMoves.push({ from: { row: row, column: column }, to: { ...move }, capturedPiece: move.capturedPiece });
+        bestMoves.push({
+          from: { row: row, column: column },
+          to: { ...move },
+          capturedPiece: move.capturedPiece
+        });
       }
     });
   }
 
   const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
-  console.log(bestScore, bestMove.from, bestMove.to, bestMove.capturedPiece, bestMoves);
   return bestMove;
 };
-
 
 const minimax = (board, depth, isMaximizing) => {
   const playerPiecesCount = getPlayerPiecesCount(board);
@@ -98,17 +144,31 @@ const minimax = (board, depth, isMaximizing) => {
           const piece = board[row][column];
           const moves = getMoves(board, row, column);
           moves.forEach((move) => {
-            const capturedPiece = move.capturedPiece ? board[move.capturedPiece.row][move.capturedPiece.column] : null;
+            const capturedPiece = move.capturedPiece
+              ? board[move.capturedPiece.row][move.capturedPiece.column]
+              : null;
 
             // choose
-            applyMove(board, { row: row, column: column }, move, piece, capturedPiece);
+            applyMove(
+              board,
+              { row: row, column: column },
+              move,
+              piece,
+              capturedPiece
+            );
             // explore
             let score = minimax(board, depth + 1, false);
             if (capturedPiece) {
               score += CAPTURE_BONUS;
             }
             // unchoose
-            undoMove(board, { row: row, column: column }, move, piece, capturedPiece);
+            undoMove(
+              board,
+              { row: row, column: column },
+              move,
+              piece,
+              capturedPiece
+            );
 
             maxScore = Math.max(score, maxScore);
           });
@@ -125,17 +185,31 @@ const minimax = (board, depth, isMaximizing) => {
         const piece = board[row][column];
         const moves = getMoves(board, row, column);
         moves.forEach((move) => {
-          const capturedPiece = move.capturedPiece ? board[move.capturedPiece.row][move.capturedPiece.column] : null;
+          const capturedPiece = move.capturedPiece
+            ? board[move.capturedPiece.row][move.capturedPiece.column]
+            : null;
 
           // choose
-          applyMove(board, { row: row, column: column }, move, piece, capturedPiece);
+          applyMove(
+            board,
+            { row: row, column: column },
+            move,
+            piece,
+            capturedPiece
+          );
           // explore
           let score = minimax(board, depth + 1, true);
           if (capturedPiece) {
             score -= CAPTURE_BONUS;
           }
           // unchoose
-          undoMove(board, { row: row, column: column }, move, piece, capturedPiece);
+          undoMove(
+            board,
+            { row: row, column: column },
+            move,
+            piece,
+            capturedPiece
+          );
 
           minScore = Math.min(score, minScore);
         });
@@ -161,7 +235,6 @@ const undoMove = (board, from, move, piece, capturedPiece) => {
   }
 };
 
-
 const evaluateBoard = board => {
   let score = 0;
   let lastPlayerPiece = [];
@@ -177,7 +250,7 @@ const evaluateBoard = board => {
           lastOpponentPiece = [row, column];
           score += piece.isKing ? KING_REWARD : PIECE_REWARD;
         }
-        if ((lastPlayerPiece.length > 0)  && (lastOpponentPiece.length > 0)) {
+        if (lastPlayerPiece.length > 0 && lastOpponentPiece.length > 0) {
           score += euclideanDistance(...lastOpponentPiece, ...lastPlayerPiece);
           lastOpponentPiece = [];
           lastPlayerPiece = [];
@@ -189,7 +262,6 @@ const evaluateBoard = board => {
     row.forEach(cell => {
       if (cell) {
         if (cell.isPlayer) {
-
           score -= cell.isKing ? KING_REWARD : PIECE_REWARD;
         } else {
           score += cell.isKing ? KING_REWARD : PIECE_REWARD;

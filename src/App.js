@@ -1,7 +1,11 @@
 import Board from './components/Board';
 import Bot from './components/Bot';
 import { useState, useEffect } from 'react';
-import { getPlayerPiecesCount, getOpponentPiecesCount, jumpOpportunityExists } from './utils';
+import {
+  getPlayerPiecesCount,
+  getOpponentPiecesCount,
+  jumpOpportunityExists
+} from './utils';
 
 const initializeBoard = () => {
   const board = [];
@@ -41,7 +45,10 @@ const App = () => {
 
   useEffect(() => {
     if (endTurnRequested) {
-      if (getOpponentPiecesCount(board) === 0 || getPlayerPiecesCount(board) === 0) {
+      if (
+        getOpponentPiecesCount(board) === 0 ||
+        getPlayerPiecesCount(board) === 0
+      ) {
         setIsGameOver(true);
       } else if (!additionalJumpDetected) {
         setIsPlayersTurn(previousState => !previousState);
@@ -91,11 +98,13 @@ const App = () => {
         board={board}
         isPlayer={false}
         isPlayersTurn={isPlayersTurn}
-        updateBoard={boardUpdateHandler} />
+        updateBoard={boardUpdateHandler}
+      />
       <Board
         board={board}
         isPlayersTurn={isPlayersTurn}
-        updateBoard={boardUpdateHandler} />
+        updateBoard={boardUpdateHandler}
+      />
     </main>
   );
 };

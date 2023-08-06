@@ -12,7 +12,11 @@ const Board = (props) => {
     if (isGameOver(props.board)) {
       return;
     }
-    if (props.isPlayersTurn && !currentMove.isMandatory && props.board[row][column].isPlayer) {
+    if (
+      props.isPlayersTurn &&
+      !currentMove.isMandatory &&
+      props.board[row][column].isPlayer
+    ) {
       setCurrentMove({ from: { row: row, column: column } });
       setHighlightedSquares(getMoves(props.board, row, column));
     }
@@ -21,7 +25,7 @@ const Board = (props) => {
   const isHighlightedSquare = (row, column) => {
     return highlightedSquares.some((square) => {
       return square.row === row && square.column === column;
-    })
+    });
   };
 
   const selectMoveHandler = (row, column) => {
@@ -38,11 +42,16 @@ const Board = (props) => {
 
       if (destinationSquare.capturedPiece) {
         const additionalJumpOpportunities = getMoves(
-          props.board, destinationSquare.row, destinationSquare.column
+          props.board,
+          destinationSquare.row,
+          destinationSquare.column
         ).filter(move => move.capturedPiece);
         if (additionalJumpOpportunities.length > 0) {
           setCurrentMove({
-            from: { row: destinationSquare.row, column: destinationSquare.column },
+            from: {
+              row: destinationSquare.row,
+              column: destinationSquare.column
+            },
             isMandatory: true
           });
           setHighlightedSquares(additionalJumpOpportunities);
@@ -58,18 +67,30 @@ const Board = (props) => {
     const rowKey = `row${rowIndex}`;
     const alternatingPatternFlag = (rowIndex % 2 === 0) ? 1 : 0;
     return (
-      <div className={classes['board__row']} key={rowKey}>
+      <div
+        className={classes['board__row']}
+        key={rowKey}>
         {row.map((_, columnIndex) => {
           const squareKey = `row${rowIndex}col${columnIndex}`;
           const cell = props.board[rowIndex][columnIndex];
 
           return (
             <Square
-              onClick={() => { selectMoveHandler(rowIndex, columnIndex) }}
+              onClick={() => {
+                selectMoveHandler(rowIndex, columnIndex);
+              }}
               alternatePattern={columnIndex % 2 === alternatingPatternFlag}
               isHighlighted={isHighlightedSquare(rowIndex, columnIndex)}
               key={squareKey}>
-              {cell ? <Piece row={rowIndex} column={columnIndex} isPlayer={cell.isPlayer} isKing={cell.isKing} pieceSelectionHandler={pieceSelectionHandler} /> : null}
+              {cell ? (
+                <Piece
+                  row={rowIndex}
+                  column={columnIndex}
+                  isPlayer={cell.isPlayer}
+                  isKing={cell.isKing}
+                  pieceSelectionHandler={pieceSelectionHandler}
+                />
+              ) : null}
             </Square>
           );
         })}
@@ -77,11 +98,7 @@ const Board = (props) => {
     );
   });
 
-  return (
-    <div className={classes.board}>
-      {data}
-    </div>
-  );
+  return <div className={classes.board}>{data}</div>;
 };
 
 export default Board;

@@ -9,13 +9,17 @@ const Bot = (props) => {
   const [jumpFrom, setJumpFrom] = useState({});
 
   const executeMove = () => {
-    const move = !isObjectEmpty(jumpFrom) ? calculateBestMove(props.board, jumpFrom) : calculateBestMove(props.board);
+    const move = !isObjectEmpty(jumpFrom)
+      ? calculateBestMove(props.board, jumpFrom)
+      : calculateBestMove(props.board);
     if (move) {
       const timer = setTimeout(() => {
         clearInterval(timer);
         props.updateBoard(move);
         const additionalJumpOpportunities = jumpOpportunityExists(
-          props.board, move.to.row, move.to.column
+          props.board,
+          move.to.row,
+          move.to.column
         );
 
         if (move.capturedPiece && additionalJumpOpportunities) {
@@ -29,7 +33,7 @@ const Bot = (props) => {
       alert(`Game over, you ${props.isPlayersTurn ? 'lost' : 'won'}`);
       window.location.reload();
     }
-  }
+  };
 
   useEffect(() => {
     if (!props.isPlayersTurn && isComputing) {
@@ -50,12 +54,16 @@ const Bot = (props) => {
     }
   }, [props.board]);
 
-
   return (
     <div className={classes.bot}>
-      <p className={`${classes['bot__icon']} ${!props.isPlayersTurn ? classes['bot__icon--computing'] : '' }`}>
+      <p
+        className={`${classes['bot__icon']} ${
+          !props.isPlayersTurn ? classes['bot__icon--computing'] : ''
+        }`}>
         🤖
-        <span className={classes['bot__text']}>{calculationTime ? `${calculationTime}s` : ""}</span>
+        <span className={classes['bot__text']}>
+          {calculationTime ? `${calculationTime}s` : ''}
+        </span>
       </p>
     </div>
   );
