@@ -38,11 +38,11 @@ const initializeBoard = () => {
 
 const App = () => {
   const [board, setBoard] = useState(initializeBoard());
-  const [isPlayersTurn, setIsPlayersTurn] = useState(true);
+  const [isPlayersTurn, setIsPlayersTurn] = useState(Math.random() < 0.5);
   const [isGameOver, setIsGameOver] = useState(false);
   const [additionalJumpDetected, setAdditionalJumpDetected] = useState(false);
   const [endTurnRequested, setEndTurnRequested] = useState(false);
-  const [autopilot, setAutopilot] = useState(true);
+  const [autopilot, setAutopilot] = useState(false);
 
   useEffect(() => {
     if (endTurnRequested) {
