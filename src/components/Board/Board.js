@@ -1,10 +1,10 @@
 import classes from './Board.module.css';
 import Piece from '../Piece';
 import Square from '../Square';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { getMoves, isGameOver } from '../../utils';
 
-const Board = (props) => {
+const Board = props => {
   const [currentMove, setCurrentMove] = useState({});
   const [highlightedSquares, setHighlightedSquares] = useState([]);
 
@@ -15,7 +15,8 @@ const Board = (props) => {
     if (
       props.isPlayersTurn &&
       !currentMove.isMandatory &&
-      props.board[row][column].isPlayer
+      props.board[row][column].isPlayer &&
+      !props.isAutopilotEnabled
     ) {
       setCurrentMove({ from: { row: row, column: column } });
       setHighlightedSquares(getMoves(props.board, row, column));
@@ -23,13 +24,13 @@ const Board = (props) => {
   };
 
   const isHighlightedSquare = (row, column) => {
-    return highlightedSquares.some((square) => {
+    return highlightedSquares.some(square => {
       return square.row === row && square.column === column;
     });
   };
 
   const selectMoveHandler = (row, column) => {
-    const destinationSquare = highlightedSquares.find((square) => {
+    const destinationSquare = highlightedSquares.find(square => {
       return square.row === row && square.column === column;
     });
 
@@ -65,9 +66,11 @@ const Board = (props) => {
 
   const data = props.board.map((row, rowIndex) => {
     const rowKey = `row${rowIndex}`;
-    const alternatingPatternFlag = (rowIndex % 2 === 0) ? 1 : 0;
+    const alternatingPatternFlag = rowIndex % 2 === 0 ? 1 : 0;
     return (
       <div
+        onKeyDown={props.keyEventHandler}
+        tabIndex='0'
         className={classes['board__row']}
         key={rowKey}>
         {row.map((_, columnIndex) => {
@@ -97,6 +100,13 @@ const Board = (props) => {
       </div>
     );
   });
+
+  useEffect(() => {
+    if (props.isAutopilotEnabled) {
+      setCurrentMove({});
+      setHighlightedSquares([]);
+    }
+  }, [props.isAutopilotEnabled]);
 
   return <div className={classes.board}>{data}</div>;
 };

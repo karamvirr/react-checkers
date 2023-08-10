@@ -12,18 +12,23 @@ const CAPTURE_BONUS = 50000;
 const KING_REWARD = 1000;
 const PIECE_REWARD = 100;
 
-const calculateBestMove = (board, mandatoryJumpFrom = {}) => {
+const calculateBestMove = (board, isPlayer, mandatoryJumpFrom = {}) => {
   const updatedBoard = [...board];
   let bestMoves = [];
-  let bestScore = -Infinity;
+  // Bot is maximizing player, user is minimizing player.
+  const isMaximizing = isPlayer ? false : true;
+  let bestScore = isMaximizing ? -Infinity : Infinity;
 
   if (isObjectEmpty(mandatoryJumpFrom)) {
     for (let row = 0; row < updatedBoard.length; row++) {
       for (let column = 0; column < updatedBoard[row].length; column++) {
-        if (updatedBoard[row][column] && !updatedBoard[row][column].isPlayer) {
+        if (
+          updatedBoard[row][column] &&
+          updatedBoard[row][column].isPlayer === isPlayer
+        ) {
           const piece = updatedBoard[row][column];
           const moves = getMoves(updatedBoard, row, column);
-          moves.forEach((move) => {
+          moves.forEach(move => {
             const capturedPiece = move.capturedPiece
               ? updatedBoard[move.capturedPiece.row][move.capturedPiece.column]
               : null;
@@ -36,7 +41,11 @@ const calculateBestMove = (board, mandatoryJumpFrom = {}) => {
               capturedPiece
             );
             // explore
-            let score = minimax(updatedBoard, 0, false);
+            let score = minimax(
+              updatedBoard,
+              0,
+              capturedPiece ? isMaximizing : !isMaximizing
+            );
             if (capturedPiece) {
               score += CAPTURE_BONUS;
             }
@@ -49,7 +58,7 @@ const calculateBestMove = (board, mandatoryJumpFrom = {}) => {
               capturedPiece
             );
 
-            if (score > bestScore) {
+            if (isMaximizing ? score > bestScore : score < bestScore) {
               bestScore = score;
               bestMoves = [
                 {
@@ -74,7 +83,7 @@ const calculateBestMove = (board, mandatoryJumpFrom = {}) => {
     const column = mandatoryJumpFrom.column;
     const piece = updatedBoard[row][column];
     const moves = getMoves(updatedBoard, row, column);
-    moves.forEach((move) => {
+    moves.forEach(move => {
       const capturedPiece = move.capturedPiece
         ? board[move.capturedPiece.row][move.capturedPiece.column]
         : null;
@@ -87,7 +96,11 @@ const calculateBestMove = (board, mandatoryJumpFrom = {}) => {
         capturedPiece
       );
       // explore
-      let score = minimax(updatedBoard, 0, false);
+      let score = minimax(
+        updatedBoard,
+        0,
+        capturedPiece ? isMaximizing : !isMaximizing
+      );
       if (capturedPiece) {
         score += CAPTURE_BONUS;
       }
@@ -100,7 +113,7 @@ const calculateBestMove = (board, mandatoryJumpFrom = {}) => {
         capturedPiece
       );
 
-      if (score > bestScore) {
+      if (isMaximizing ? score > bestScore : score < bestScore) {
         bestScore = score;
         bestMoves = [
           {
@@ -120,6 +133,7 @@ const calculateBestMove = (board, mandatoryJumpFrom = {}) => {
   }
 
   const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
+  console.log('score', bestScore, 'move', bestMove);
   return bestMove;
 };
 
@@ -140,10 +154,14 @@ const minimax = (board, depth, isMaximizing) => {
     let maxScore = -Infinity;
     for (let row = 0; row < board.length; row++) {
       for (let column = 0; column < board[row].length; column++) {
-        if (board[row][column] && !board[row][column].isPlayer) {
+        if (
+          board[row][column] &&
+          board[row][column].isPlayer !== undefined &&
+          !board[row][column].isPlayer
+        ) {
           const piece = board[row][column];
           const moves = getMoves(board, row, column);
-          moves.forEach((move) => {
+          moves.forEach(move => {
             const capturedPiece = move.capturedPiece
               ? board[move.capturedPiece.row][move.capturedPiece.column]
               : null;
@@ -157,7 +175,7 @@ const minimax = (board, depth, isMaximizing) => {
               capturedPiece
             );
             // explore
-            let score = minimax(board, depth + 1, false);
+            let score = minimax(board, depth + 1, capturedPiece ? true : false);
             if (capturedPiece) {
               score += CAPTURE_BONUS;
             }
@@ -181,10 +199,14 @@ const minimax = (board, depth, isMaximizing) => {
   let minScore = Infinity;
   for (let row = 0; row < board.length; row++) {
     for (let column = 0; column < board[row].length; column++) {
-      if (board[row][column] && board[row][column].isPlayer) {
+      if (
+        board[row][column] &&
+        board[row][column].isPlayer !== undefined &&
+        board[row][column].isPlayer
+      ) {
         const piece = board[row][column];
         const moves = getMoves(board, row, column);
-        moves.forEach((move) => {
+        moves.forEach(move => {
           const capturedPiece = move.capturedPiece
             ? board[move.capturedPiece.row][move.capturedPiece.column]
             : null;
@@ -198,7 +220,7 @@ const minimax = (board, depth, isMaximizing) => {
             capturedPiece
           );
           // explore
-          let score = minimax(board, depth + 1, true);
+          let score = minimax(board, depth + 1, capturedPiece ? false : true);
           if (capturedPiece) {
             score -= CAPTURE_BONUS;
           }
@@ -237,27 +259,6 @@ const undoMove = (board, from, move, piece, capturedPiece) => {
 
 const evaluateBoard = board => {
   let score = 0;
-  let lastPlayerPiece = [];
-  let lastOpponentPiece = [];
-  for (let row = 0; row < board.length; row++) {
-    for (let column = 0; column < board[row].length; column++) {
-      if (board[row][column]) {
-        const piece = board[row][column];
-        if (piece.isPlayer) {
-          lastPlayerPiece = [row, column];
-          score -= piece.isKing ? KING_REWARD : PIECE_REWARD;
-        } else {
-          lastOpponentPiece = [row, column];
-          score += piece.isKing ? KING_REWARD : PIECE_REWARD;
-        }
-        if (lastPlayerPiece.length > 0 && lastOpponentPiece.length > 0) {
-          score += euclideanDistance(...lastOpponentPiece, ...lastPlayerPiece);
-          lastOpponentPiece = [];
-          lastPlayerPiece = [];
-        }
-      }
-    }
-  }
   board.forEach(row => {
     row.forEach(cell => {
       if (cell) {

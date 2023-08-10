@@ -3,15 +3,12 @@ import { jumpOpportunityExists, isObjectEmpty } from '../../utils';
 import { calculateBestMove } from '../../utils/bot';
 import { useEffect, useState } from 'react';
 
-const Bot = (props) => {
+const Bot = props => {
   const [isComputing, setIsComputing] = useState(false);
-  const [calculationTime, setCalculationTime] = useState(null);
   const [jumpFrom, setJumpFrom] = useState({});
 
   const executeMove = () => {
-    const move = !isObjectEmpty(jumpFrom)
-      ? calculateBestMove(props.board, jumpFrom)
-      : calculateBestMove(props.board);
+    const move = calculateBestMove(props.board, props.isPlayer, jumpFrom);
     if (move) {
       const timer = setTimeout(() => {
         clearInterval(timer);
@@ -28,21 +25,27 @@ const Bot = (props) => {
           setJumpFrom({});
         }
         setIsComputing(false);
-      }, 150);
+      }, 750);
     } else {
       alert(`Game over, you ${props.isPlayersTurn ? 'lost' : 'won'}`);
       window.location.reload();
     }
   };
 
+  const isBotsTurn = () => {
+    return props.isPlayer === props.isPlayersTurn;
+  };
+
   useEffect(() => {
-    if (!props.isPlayersTurn && isComputing) {
+    if (isBotsTurn() && isComputing) {
       executeMove();
     }
   }, [isComputing]);
 
   useEffect(() => {
-    if (!props.isPlayersTurn && !isComputing) {
+    if (!isBotsTurn()) {
+      setIsComputing(false);
+    } else if (!isComputing) {
       setIsComputing(true);
     }
   }, [props.isPlayersTurn]);
@@ -58,12 +61,9 @@ const Bot = (props) => {
     <div className={classes.bot}>
       <p
         className={`${classes['bot__icon']} ${
-          !props.isPlayersTurn ? classes['bot__icon--computing'] : ''
+          isBotsTurn() && classes['bot__icon--computing']
         }`}>
         🤖
-        <span className={classes['bot__text']}>
-          {calculationTime ? `${calculationTime}s` : ''}
-        </span>
       </p>
     </div>
   );

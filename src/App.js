@@ -11,7 +11,7 @@ const initializeBoard = () => {
   const board = [];
   for (let i = 0; i < 8; i++) {
     const row = [];
-    const alternatingPatternFlag = (i % 2 === 0) ? 1 : 0;
+    const alternatingPatternFlag = i % 2 === 0 ? 1 : 0;
     for (let j = 0; j < 8; j++) {
       let cell = null;
       if (j % 2 === alternatingPatternFlag) {
@@ -38,10 +38,11 @@ const initializeBoard = () => {
 
 const App = () => {
   const [board, setBoard] = useState(initializeBoard());
-  const [isPlayersTurn, setIsPlayersTurn] = useState(false);
+  const [isPlayersTurn, setIsPlayersTurn] = useState(true);
   const [isGameOver, setIsGameOver] = useState(false);
   const [additionalJumpDetected, setAdditionalJumpDetected] = useState(false);
   const [endTurnRequested, setEndTurnRequested] = useState(false);
+  const [autopilot, setAutopilot] = useState(true);
 
   useEffect(() => {
     if (endTurnRequested) {
@@ -66,7 +67,7 @@ const App = () => {
       } else if (opponentPieceCount == 0) {
         alert('Game over, you won!');
       } else {
-        alert('Game over, it\'s a draw!');
+        alert("Game over, it's a draw!");
       }
       window.location.reload();
     }
@@ -79,7 +80,7 @@ const App = () => {
     if (additionalJumpDetected) {
       setAdditionalJumpDetected(false);
     }
-    if (to.row === 0 || to.row === (board.length - 1)) {
+    if (to.row === 0 || to.row === board.length - 1) {
       board[to.row][to.column].isKing = true;
     }
     if (capturedPiece) {
@@ -90,6 +91,12 @@ const App = () => {
     }
     setBoard([...board]);
     setEndTurnRequested(true);
+  };
+
+  const keyEventHandler = event => {
+    if (event.key.toUpperCase() === 'A') {
+      setAutopilot(previousState => !previousState);
+    }
   };
 
   return (
@@ -104,7 +111,17 @@ const App = () => {
         board={board}
         isPlayersTurn={isPlayersTurn}
         updateBoard={boardUpdateHandler}
+        keyEventHandler={keyEventHandler}
+        isAutopilotEnabled={autopilot}
       />
+      {autopilot && (
+        <Bot
+          board={board}
+          isPlayer={true}
+          isPlayersTurn={isPlayersTurn}
+          updateBoard={boardUpdateHandler}
+        />
+      )}
     </main>
   );
 };
