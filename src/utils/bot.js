@@ -3,14 +3,15 @@ import {
   getMoves,
   getPlayerPiecesCount,
   getOpponentPiecesCount,
-  euclideanDistance
+  jumpOpportunityExists
 } from './index.js';
 
 const MAX_SEARCH_DEPTH = 4;
 const MAX_REWARD = 1000000;
-const CAPTURE_BONUS = 50000;
-const KING_REWARD = 1000;
-const PIECE_REWARD = 100;
+const CAPTURE_REWARD = 50000;
+const KING_REWARD = 5000;
+const PIECE_REWARD = 1000;
+const DEPTH_PENALTY = 50; // per depth level
 
 const calculateBestMove = (board, isPlayer, mandatoryJumpFrom = {}) => {
   const updatedBoard = [...board];
@@ -47,7 +48,11 @@ const calculateBestMove = (board, isPlayer, mandatoryJumpFrom = {}) => {
               capturedPiece ? isMaximizing : !isMaximizing
             );
             if (capturedPiece) {
-              score += CAPTURE_BONUS;
+              if (isPlayer) {
+                score -= CAPTURE_REWARD;
+              } else {
+                score += CAPTURE_REWARD;
+              }
             }
             // unchoose
             undoMove(
@@ -102,7 +107,11 @@ const calculateBestMove = (board, isPlayer, mandatoryJumpFrom = {}) => {
         capturedPiece ? isMaximizing : !isMaximizing
       );
       if (capturedPiece) {
-        score += CAPTURE_BONUS;
+        if (isPlayer) {
+          score -= CAPTURE_REWARD;
+        } else {
+          score += CAPTURE_REWARD;
+        }
       }
       // unchoose
       undoMove(
@@ -133,7 +142,7 @@ const calculateBestMove = (board, isPlayer, mandatoryJumpFrom = {}) => {
   }
 
   const bestMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
-  console.log('score', bestScore, 'move', bestMove);
+  console.log('score', bestScore, 'move', bestMove, 'player', isPlayer);
   return bestMove;
 };
 
@@ -141,13 +150,14 @@ const minimax = (board, depth, isMaximizing) => {
   const playerPiecesCount = getPlayerPiecesCount(board);
   const opponentPiecesCount = getOpponentPiecesCount(board);
   if (playerPiecesCount === 0) {
-    return MAX_REWARD;
+    return MAX_REWARD - DEPTH_PENALTY * depth;
   } else if (opponentPiecesCount === 0) {
-    return -MAX_REWARD;
+    return -MAX_REWARD + DEPTH_PENALTY * depth;
   } else if (opponentPiecesCount === 0 && playerPiecesCount === 0) {
     return 0;
   } else if (depth == MAX_SEARCH_DEPTH) {
-    return evaluateBoard(board);
+    const sign = isMaximizing ? -1 : 1;
+    return evaluateBoard(board) + sign * DEPTH_PENALTY * depth;
   }
 
   if (isMaximizing) {
@@ -177,7 +187,7 @@ const minimax = (board, depth, isMaximizing) => {
             // explore
             let score = minimax(board, depth + 1, capturedPiece ? true : false);
             if (capturedPiece) {
-              score += CAPTURE_BONUS;
+              score += CAPTURE_REWARD;
             }
             // unchoose
             undoMove(
@@ -222,7 +232,7 @@ const minimax = (board, depth, isMaximizing) => {
           // explore
           let score = minimax(board, depth + 1, capturedPiece ? false : true);
           if (capturedPiece) {
-            score -= CAPTURE_BONUS;
+            score -= CAPTURE_REWARD;
           }
           // unchoose
           undoMove(
@@ -259,17 +269,19 @@ const undoMove = (board, from, move, piece, capturedPiece) => {
 
 const evaluateBoard = board => {
   let score = 0;
-  board.forEach(row => {
-    row.forEach(cell => {
+
+  board.forEach((row, rowIndex) => {
+    row.forEach((cell, columnIndex) => {
       if (cell) {
-        if (cell.isPlayer) {
-          score -= cell.isKing ? KING_REWARD : PIECE_REWARD;
-        } else {
-          score += cell.isKing ? KING_REWARD : PIECE_REWARD;
+        const sign = cell.isPlayer ? -1 : 1;
+        score += sign * (cell.isKing ? KING_REWARD : PIECE_REWARD);
+        if (jumpOpportunityExists(board, rowIndex, columnIndex)) {
+          score += sign * CAPTURE_REWARD;
         }
       }
     });
   });
+
   return score;
 };
 
