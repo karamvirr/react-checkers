@@ -1,4 +1,4 @@
-# React AI
+# Checkers AI
 
 <img width="1440" alt="Screenshot 2023-08-10 at 10 41 37 AM" src="https://github.com/karamvirr/react-checkers/assets/21179214/6942450f-3ad0-4af4-9153-d66b31b7f0e6">
 <p align="center"><em>Play against an opponent AI</em></p>
