@@ -14,22 +14,16 @@
 
 .board__square--highlighted::after {
   content: '';
-  /* position: absolute;
-  border: 2px solid white;
-  height: 75%;
-  width: 75%;
-  border-radius: 50%;
-  opacity: 0.5; */
   position: absolute;
   height: 100%;
   width: 100%;
   opacity: 0.5;
   background-color: cadetblue;
-  /* animation: highlighted-square 1s infinite ease-in-out; */
 }
 
-@keyframes highlighted-square {
-  50% {
-    background-color: pink;
+@media screen and (max-width: 600px) {
+  .board__square {
+    width: 35px;
+    height: 35px;
   }
 }
